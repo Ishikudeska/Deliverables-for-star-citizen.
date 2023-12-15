@@ -42,6 +42,9 @@
     <button onclick="addDeliverable()">Add</button>
     <button onclick="updateDeliverable()">Update</button>
     <button onclick="saveToFile()">Save</button>
+
+    <!-- Add the import input element -->
+    <input type="file" id="fileInput" accept=".csv" onchange="importFromFile()">
 </div>
 
 <table id="deliverableTable">
@@ -93,6 +96,38 @@
         link.setAttribute("download", "deliverables.csv");
         document.body.appendChild(link);
         link.click();
+    }
+
+    function importFromFile() {
+        var fileInput = document.getElementById('fileInput');
+        var file = fileInput.files[0];
+
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var csvData = e.target.result;
+                parseCsvData(csvData);
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    function parseCsvData(csvData) {
+        var lines = csvData.split('\n');
+        deliverables = [];
+
+        for (var i = 1; i < lines.length; i++) { // Start from 1 to skip header
+            var fields = lines[i].split(',');
+            if (fields.length === 3) {
+                var name = fields[0].trim();
+                var status = fields[1].trim();
+                var notes = fields[2].trim();
+
+                deliverables.push({ name: name, status: status, notes: notes });
+            }
+        }
+
+        updateTable();
     }
 
     function updateTable() {
