@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Add your CSS styling here */
+        .bubble {
+            display: inline-block;
+            padding: 10px;
+            border-radius: 15px;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        .green { color: green; background-color: lightgreen; }
+        .yellow { color: yellow; background-color: lightyellow; }
+        .red { color: red; background-color: lightcoral; }
+        .blue { color: black; background-color: white; cursor: pointer; }
+    </style>
+    <title>Admin Panel - Deliverables Tracker</title>
+</head>
+<body>
+    <h1>Admin Panel - Deliverables Tracker</h1>
+
+    <div id="deliverables-list"></div>
+
+    <button onclick="addDeliverable()">Add Deliverable</button>
+    <button onclick="exportData()">Export Data</button>
+
+    <script>
+        // Sample deliverables data
+        let deliverables = getStoredData() || [
+            { name: "Deliverable 1", status: "implemented", note: "Internal goal" },
+            { name: "Deliverable 2", status: "partiallyImplemented", note: "Leaked or official" },
+            { name: "Deliverable 3", status: "notImplemented", note: "See note" },
+        ];
+
+        function renderDeliverables() {
+            const deliverablesList = document.getElementById("deliverables-list");
+            deliverablesList.innerHTML = "";
+
+            deliverables.forEach(deliverable => {
+                const deliverableElement = document.createElement("div");
+                deliverableElement.classList.add("bubble");
+
+                switch (deliverable.status) {
+                    case "implemented":
+                        deliverableElement.classList.add("green");
+                        break;
+                    case "partiallyImplemented":
+                        deliverableElement.classList.add("yellow");
+                        break;
+                    case "notImplemented":
+                        deliverableElement.classList.add("red");
+                        break;
+                }
+
+                const textElement = document.createElement("span");
+                textElement.textContent = `${deliverable.name} - ${deliverable.note}`;
+
+                const seeNoteLink = document.createElement("span");
+                seeNoteLink.textContent = "See note";
+                seeNoteLink.classList.add("blue");
+                seeNoteLink.style.marginLeft = "10px";
+                seeNoteLink.addEventListener("click", () => alert(`Note: ${deliverable.note}`));
+
+                deliverableElement.appendChild(textElement);
+                deliverableElement.appendChild(seeNoteLink);
+                deliverablesList.appendChild(deliverableElement);
+            });
+        }
+
+        function addDeliverable() {
+            const name = prompt("Enter the deliverable name:");
+            const status = prompt("Enter the deliverable status (implemented, partiallyImplemented, notImplemented):");
+            const note = prompt("Enter the deliverable note:");
+
+            deliverables.push({ name, status, note });
+            renderDeliverables();
+            storeData();
+        }
+
+        function storeData() {
+            localStorage.setItem('deliverables', JSON.stringify(deliverables));
+        }
+
+        function getStoredData() {
+            const storedData = localStorage.getItem('deliverables');
+            return storedData ? JSON.parse(storedData) : null;
+        }
+
+        function exportData() {
+            const dataToExport = JSON.stringify(deliverables, null, 2);
+            const blob = new Blob([dataToExport], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'deliverables.json';
+            a.click();
+        }
+
+        // Initial render
+        renderDeliverables();
+    </script>
+</body>
+</html>
