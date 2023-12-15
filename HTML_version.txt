@@ -3,70 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deliverables Manager</title>
     <style>
-        /* Add your CSS styling here */
-        .bubble {
-            display: inline-block;
-            padding: 10px;
-            border-radius: 15px;
-            margin: 5px;
-            font-weight: bold;
+        body {
+            font-family: Arial, sans-serif;
         }
 
-        .green { color: green; background-color: lightgreen; }
-        .yellow { color: yellow; background-color: lightyellow; }
-        .red { color: red; background-color: lightcoral; }
-        .blue { color: black; background-color: white; cursor: pointer; }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
     </style>
-    <title>Admin Panel - Deliverables Tracker</title>
 </head>
 <body>
-    <h1>Admin Panel - Deliverables Tracker</h1>
 
-    <div id="deliverables-list"></div>
+<div>
+    <button onclick="addDeliverable()">Add</button>
+    <button onclick="updateDeliverable()">Update</button>
+    <button onclick="saveToFile()">Save</button>
+</div>
 
-    <button onclick="addDeliverable()">Add Deliverable</button>
-    <button onclick="exportData()">Export Data</button>
+<table id="deliverableTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
-    <div id="credit">
-        <p>Info provided by <a href="https://discord.gg/pipelinesc" target="_blank">discord.gg/pipelinesc</a>. Made by Ishi</p>
-    </div>
+<script>
+    var deliverables = [];
 
-    <script>
-        // Sample deliverables data
-        let deliverables = getStoredData() || [
-            { name: "Deliverable 1", status: "implemented", note: "Internal goal" },
-            { name: "Deliverable 2", status: "partiallyImplemented", note: "Leaked or official" },
-            { name: "Deliverable 3", status: "notImplemented", note: "See note" },
-        ];
+    function addDeliverable() {
+        var name = prompt("Enter deliverable name:");
+        if (!name) return;
 
-        function renderDeliverables() {
-            const deliverablesList = document.getElementById("deliverables-list");
-            deliverablesList.innerHTML = "";
+        var newDeliverable = { name: name, status: "Not Implemented", notes: "" };
+        deliverables.push(newDeliverable);
+        updateTable();
+    }
 
-            deliverables.forEach(deliverable => {
-                // ... (rest of the code remains unchanged)
-            });
+    function updateDeliverable() {
+        var row = document.getElementById("deliverableTable").getElementsByTagName("tbody")[0].getElementsByClassName("selected-row")[0];
+        if (!row) return;
+
+        var name = prompt("Enter updated deliverable name:", row.cells[0].innerText);
+        if (!name) return;
+
+        var index = row.rowIndex - 1;
+        deliverables[index].name = name;
+
+        updateTable();
+    }
+
+    function saveToFile() {
+        var csvContent = "data:text/csv;charset=utf-8,Name,Status,Notes\n";
+
+        deliverables.forEach(function(deliverable) {
+            csvContent += deliverable.name + "," + deliverable.status + "," + deliverable.notes + "\n";
+        });
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "deliverables.csv");
+        document.body.appendChild(link);
+        link.click();
+    }
+
+    function updateTable() {
+        var tableBody = document.getElementById("deliverableTable").getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = "";
+
+        deliverables.forEach(function(deliverable) {
+            var row = tableBody.insertRow();
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+
+            cell1.innerText = deliverable.name;
+            cell2.innerText = deliverable.status;
+            cell3.innerText = deliverable.notes;
+        });
+
+        clearSelection();
+    }
+
+    function clearSelection() {
+        var table = document.getElementById("deliverableTable");
+        for (var i = 0; i < table.rows.length; i++) {
+            table.rows[i].classList.remove("selected-row");
         }
+    }
 
-        function addDeliverable() {
-            // ... (rest of the code remains unchanged)
+    document.getElementById("deliverableTable").addEventListener("click", function(e) {
+        clearSelection();
+        if (e.target.tagName === "TD") {
+            e.target.parentElement.classList.add("selected-row");
         }
+    });
 
-        function storeData() {
-            // ... (rest of the code remains unchanged)
-        }
+    // Load existing data (for demonstration purposes)
+    deliverables.push({ name: "Task 1", status: "Not Implemented", notes: "" });
+    deliverables.push({ name: "Task 2", status: "Implemented", notes: "Completed on time" });
+    deliverables.push({ name: "Task 3", status: "Partially Implemented", notes: "In progress" });
 
-        function getStoredData() {
-            // ... (rest of the code remains unchanged)
-        }
+    updateTable();
+</script>
 
-        function exportData() {
-            // ... (rest of the code remains unchanged)
-        }
-
-        // Initial render
-        renderDeliverables();
-    </script>
 </body>
 </html>
